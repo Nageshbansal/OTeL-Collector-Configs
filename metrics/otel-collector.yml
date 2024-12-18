@@ -1,0 +1,33 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+processors:
+extensions:
+  health_check: {}
+exporters:
+  # otlp:
+  #   endpoint: jaeger:4317
+  #   tls:
+  #     insecure: true
+  prometheus:
+    endpoint: 0.0.0.0:9090
+    # namespace: testapp
+    resource_to_telemetry_conversion:
+      enabled: true
+  debug:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  extensions: [health_check]
+  pipelines:
+    metrics:
+      receivers: [otlp]
+      processors: []
+      exporters: [prometheus, debug]

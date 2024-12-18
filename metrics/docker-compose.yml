@@ -1,0 +1,22 @@
+services:
+  otel-collector:
+    image: otel/opentelemetry-collector-contrib:0.115.1
+    command: ["--config=/etc/otel-collector.yaml"]
+    volumes:
+      - ./otel-collector.yml:/etc/otel-collector.yaml
+    ports:
+      - 4317:4317
+
+  crawler:
+    image: nageshnode/webcrawler:webserver
+    ports:
+      - 8080:8080
+    environment:
+      OTEL_EXPORTER_OTLP_ENDPOINT: otel-collector:4317
+
+  prometheus:
+    image: prom/prometheus:v3.0.1
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - 9090:9090

@@ -1,0 +1,17 @@
+#HELP webcrawler_crawled_failed_page_total Crawler Failed Page
+# TYPE webcrawler_crawled_failed_page_total counter
+
+# HELP webcrawler_crawled_pages_success_total Total number of pages crawled
+# TYPE webcrawler_crawled_pages_success_total counter
+
+# HELP webcrawler_error_requests_total Total number of error request during crawling
+# TYPE webcrawler_error_requests_total counter
+
+# HELP webcrawler_page_fetch_latency_milliseconds Distribution of page fetch latency
+# TYPE webcrawler_page_fetch_latency_milliseconds histogram
+
+# HELP webcrawler_pages_total Total number of pages
+# TYPE webcrawler_pages_total counter
+
+# HELP webcrawler_url_queue Crawler Queue Size
+# TYPE webcrawler_url_queue gauge

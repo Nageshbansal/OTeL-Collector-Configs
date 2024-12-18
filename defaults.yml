@@ -1,0 +1,72 @@
+mode: deployment
+
+image:
+  repository: otel/opentelemetry-collector-contrib
+  # tag: "0.115.1"
+  pullPolicy: Always
+
+presets:
+  kubeletMetrics:
+    enabled: true
+  clusterMetrics:
+    enabled: true
+## The chart only includes the loggingexporter by default
+## If you want to send your data somewhere you need to
+## configure an exporter, such as the otlpexporter
+config:
+  exporters:
+    prometheus:
+      endpoint: "127.0.0.1:9090"
+      # tls:
+    # file:
+    #   path: "fileexporter.txt"
+    debug:
+      verbosity: detailed
+      sampling_initial: 5
+      sampling_thereafter: 200
+  extensions:
+    health_check: {}
+    k8s_observer:
+      auth_type: serviceAccount
+      # node: ${env:K8S_NODE_NAME}
+      observe_pods: true
+      observe_nodes: true
+      observe_services: false
+      observe_ingresses: false
+  
+  receivers:
+    receiver_creator:
+      watch_observers: [k8s_observer]
+      receivers:
+        kubeletstats:
+        
+          rule: type == "k8s.node"
+          config:
+            insecure_skip_verify: true
+            auth_type: serviceAccount
+            collection_interval: 10s
+            endpoint: "`endpoint`:`kubelet_endpoint_port`"
+            extra_metadata_labels:
+              - container.id
+            metric_groups:
+              - container
+              - pod
+              - node
+          rule: type == "pod"
+          config:
+            auth_type: serviceAccount
+            insecure_skip_verify: true
+            collection_interval: 10s
+            endpoint: "`endpoint`:`10250`"
+            extra_metadata_labels:
+              - container.id
+            metric_groups:
+              - pod
+
+  service:
+    extensions: [health_check, k8s_observer]
+    pipelines:
+      metrics:
+        receivers: [receiver_creator]
+        exporters: [prometheus]
+        # exporters: [debug]
